@@ -30,19 +30,4 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 public class ApplicationTest {
 
-    @MockBean
-    private Runner runner;
-
-    @Autowired
-    private RabbitTemplate rabbitTemplate;
-
-    @Autowired
-    private Receiver receiver;
-
-    @Test
-    public void test() throws Exception {
-        rabbitTemplate.convertAndSend(Application.queueName, "Hello from RabbitMQ!");
-        receiver.getLatch().await(10000, TimeUnit.MILLISECONDS);
-    }
-
 }

@@ -3,6 +3,7 @@ package messagebroker;
 import com.rabbitmq.client.*;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -32,7 +33,10 @@ public class Application {
             System.out.println(" [x] Received '" + message + "'");
             try {
                 sendMetricToServer(message);
-            } finally {
+            } catch(Exception e) {
+                System.out.println("Exception when executing work : " + e.getLocalizedMessage());
+            } finally
+            {
                 System.out.println(" [x] Done");
                 channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
             }
@@ -41,15 +45,19 @@ public class Application {
     }
 
     private static void sendMetricToServer(String metric) throws IOException {
-        URL url = new URL ("https://25.29.63.206:53144/ApiTest/api/RawMetric");
+        URL url = new URL ("http://25.29.63.206:53144/ApiTest/api/RawMetric");
         HttpURLConnection con = (HttpURLConnection)url.openConnection();
-        con.setRequestMethod("POST");
-        con.setRequestProperty("Content-Type", "application/json; utf-8");
         con.setDoOutput(true);
+        con.setRequestMethod("POST");
+        con.setRequestProperty("User-Agent", "Java client");
+        con.setRequestProperty("Content-Type", "application/json");
 
-        try(OutputStream os = con.getOutputStream()) {
+        try (DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
             byte[] input = metric.getBytes(StandardCharsets.UTF_8);
-            os.write(input, 0, input.length);
+            wr.write(input, 0, input.length);
+        }
+        finally {
+            con.disconnect();
         }
     }
 

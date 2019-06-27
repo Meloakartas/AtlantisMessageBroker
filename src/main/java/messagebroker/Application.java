@@ -1,7 +1,9 @@
-package hello;
+package messagebroker;
 
 import com.rabbitmq.client.*;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import java.nio.charset.StandardCharsets;
 
 @SpringBootApplication
 public class Application {
@@ -20,7 +22,7 @@ public class Application {
         channel.basicQos(1);
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-            String message = new String(delivery.getBody(), "UTF-8");
+            String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
 
             System.out.println(" [x] Received '" + message + "'");
             try {
